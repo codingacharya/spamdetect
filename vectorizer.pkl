@@ -1,0 +1,26 @@
+import pandas as pd
+import re
+import pickle
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+# Load dataset (assuming 'spam.csv' with columns 'v1' and 'v2')
+df = pd.read_csv("spam.csv", encoding="latin-1")[['v1', 'v2']]
+df.columns = ['label', 'message']
+
+# Text Preprocessing Function
+def preprocess_text(text):
+    text = text.lower()
+    text = re.sub(r'[^a-zA-Z0-9\s]', '', text)  # Remove special characters
+    return text
+
+df['message'] = df['message'].apply(preprocess_text)
+
+# Initialize and fit TF-IDF Vectorizer
+vectorizer = TfidfVectorizer(stop_words='english', max_features=5000)
+vectorizer.fit(df['message'])  # Learn vocabulary from the dataset
+
+# Save the vectorizer
+with open("vectorizer.pkl", "wb") as vectorizer_file:
+    pickle.dump(vectorizer, vectorizer_file)
+
+print("Vectorizer saved successfully!")
